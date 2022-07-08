@@ -1,6 +1,16 @@
 # nodejs-application-monitoring-with-prometheus-and-grafana
 
-# 🚀 Javascript full-stack 🚀
+## Node.js Application Monitoring with Prometheus and Grafana
+
+Node.js Application Monitoring with Prometheus and Grafana
+
+Application monitoring is essential for every production software system. In this article, we get to know Prometheus and Grafana and learn how to use them to monitor Node.js applications.
+
+By Kentaro Wakayama https://codersociety.com/blog/articles/nodejs-application-monitoring-with-prometheus-and-grafana
+
+15 September 2020 - 4 min read
+
+# 🚀 Node.js Application Monitoring with Prometheus and Grafana 🚀
 
 https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana
 
@@ -43,7 +53,7 @@ Julie Dam https://grafana.com/author/jdam/
 
 • 2 Aug 2018 • 4 min read
 
-![Tom Wilkie - Grafana Labs]()
+![Tom Wilkie - Grafana Labs](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/tom_wilkie.jpg?raw=true)
 
 Tom Wilkie - Grafana Labs
 
@@ -103,6 +113,14 @@ Watch Tom’s full talk in the video below.
 Video: The RED Method: How to Instrument Your Services https://www.youtube.com/watch?v=zk77VS98Em8&feature=emb_imp_woyt
 
 # Node.js Application Monitoring with Prometheus and Grafana
+
+Node.js Application Monitoring with Prometheus and Grafana
+
+Application monitoring is essential for every production software system. In this article, we get to know Prometheus and Grafana and learn how to use them to monitor Node.js applications.
+
+By Kentaro Wakayama https://codersociety.com/blog/articles/nodejs-application-monitoring-with-prometheus-and-grafana
+
+15 September 2020 - 4 min read
 
 ![](https://cdn.codersociety.com/uploads/keystone/nodejs-performance-monitoring-with-prometheus-and-grafana.png)
 
