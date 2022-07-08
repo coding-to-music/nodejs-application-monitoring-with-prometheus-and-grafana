@@ -530,11 +530,13 @@ Depending on your hardware, running this command may take some time.
 After running the ab command, you can access the Grafana dashboard via http://localhost:3000/d/1DYaynomMk/example-service-dashboard.
 
 ![Figure 1: Requests per minute graph](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-rate.png?raw=true)
+
 Figure 1: Requests per minute graph
 
 Figure 1 shows that the Node.js app was handling ~1,500 requests per minute.
 
 ![Figure 2: Request errors per minute graph](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-errors.png?raw=true)
+
 Figure 2: Request errors per minute graph
 
 Figure 2 shows that there are a maximum of 20 errors per minute.
