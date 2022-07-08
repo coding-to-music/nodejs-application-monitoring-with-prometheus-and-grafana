@@ -1,0 +1,21 @@
+{
+  "name": "nodejs-application-monitoring-with-prometheus-and-grafana",
+  "version": "1.0.0",
+  "description": "![](https://cdn.codersociety.com/uploads/keystone/nodejs-performance-monitoring-with-prometheus-and-grafana.png)",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "git add . && git commit -m Build && git push",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coder-society/nodejs-application-monitoring-with-prometheus-and-grafana.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coder-society/nodejs-application-monitoring-with-prometheus-and-grafana/issues"
+  },
+  "homepage": "https://github.com/coder-society/nodejs-application-monitoring-with-prometheus-and-grafana#readme"
+}
