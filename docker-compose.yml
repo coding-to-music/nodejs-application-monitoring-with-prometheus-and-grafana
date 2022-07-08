@@ -13,7 +13,7 @@ services:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     ports:
-      - 9095:9095
+      - 9095:9090
     expose:
       - 9095
     networks:
