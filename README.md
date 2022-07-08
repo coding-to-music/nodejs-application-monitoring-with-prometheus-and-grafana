@@ -540,6 +540,7 @@ Figure 2: Request errors per minute graph
 Figure 2 shows that there are a maximum of 20 errors per minute.
 
 ![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-duration.png?raw=true)
+
 Figure 3: Request duration graph
 
 Figure 3 shows the time it took to process a request. Displayed here are the 90th percentile, the median, and the average durations for different endpoints of the Node.js app. The 90th percentile is the slowest 10% of requests. For the 10,000 requests we sent with ApacheBench, this means the 1,000 requests that took the longest time. In this case, it shows that 1,000 requests to the /order endpoint took over 6 seconds.
