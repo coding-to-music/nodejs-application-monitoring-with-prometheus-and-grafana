@@ -434,9 +434,6 @@ git clone https://github.com/coder-society/nodejs-application-monitoring-with-pr
 The JavaScript code of the Node.js app is located in the /example-nodejs-app directory. All containers can be started conveniently with docker-compose. Run the following command in the project root directory:
 
 ```java
-
-```
-
 # detached mode
 
 docker-compose up -d
@@ -444,8 +441,7 @@ docker-compose up -d
 # view the logs as they happen
 
 docker-compose up
-
-````
+```
 
 After executing the command, a Node.js app, Grafana, and Prometheus will be running in the background. The charts of the gathered metrics can be accessed and viewed via the Grafana UI at http://localhost:3000/d/1DYaynomMk/example-service-dashboard.
 
@@ -457,7 +453,7 @@ On MacOS, it comes pre-installed by default. On Debian-based Linux distributions
 
 ```java
 sudo apt-get install apache2-utils
-````
+```
 
 For Windows, you can download the binaries from Apache Lounge as a ZIP archive. ApacheBench will be named ab.exe in that archive.
 
