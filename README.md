@@ -45,7 +45,7 @@ git remote add origin git@github.com:coding-to-music/nodejs-application-monitori
 git push -u origin main
 ```
 
-The RED Method: How to Instrument Your Services
+# The RED Method: How to Instrument Your Services
 
 https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/
 
