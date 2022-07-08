@@ -146,13 +146,13 @@ git clone https://github.com/coder-society/nodejs-monitoring-with-prometheus-and
 
 Navigate into the project directory:
 
-```bash
+```java
 cd nodejs-monitoring-with-prometheus-and-grafana
 ```
 
 Start the Docker containers:
 
-```bash
+```java
 docker-compose up -d
 ```
 
@@ -190,7 +190,7 @@ prom-client is the most popular Prometheus client libary for Node.js. It provide
 
 Create a new directory and setup the Node.js project:
 
-```
+```java
 mkdir example-nodejs-app
 cd example-nodejs-app
 npm init -y
@@ -200,7 +200,7 @@ npm init -y
 
 The prom-client npm module can be installed via:
 
-```
+```java
 npm install prom-client
 ```
 
@@ -210,7 +210,7 @@ Every Prometheus client library comes with predefined default metrics that are a
 
 You can capture and expose the default metrics with following code snippet:
 
-```
+```java
 const http = require('http')
 const url = require('url')
 const client = require('prom-client')
@@ -296,7 +296,7 @@ server.listen(8080)
 
 Copy the above code into a file called server.js and start the Node.js HTTP server with following command:
 
-```
+```java
 node server.js
 ```
 
@@ -307,7 +307,7 @@ Prometheus is available as Docker image and can be configured via a YAML file.
 
 Create a configuration file called prometheus.yml with following content:
 
-```
+```java
 global:
   scrape_interval: 5s
 scrape_configs:
@@ -320,7 +320,7 @@ The config file tells Prometheus to scrape all targets every 5 seconds. The targ
 
 Use the docker run command to start the Prometheus Docker container and mount the configuration file (prometheus.yml):
 
-```
+```java
 docker run --rm -p 9090:9090 \
   -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml \
   prom/prometheus:v2.20.1
@@ -352,7 +352,7 @@ Grafana is also available as Docker container. Grafana datasources can be config
 
 ## Create a configuration file called datasources.yml with following content:
 
-```
+```java
 apiVersion: 1
 
 datasources:
@@ -370,7 +370,7 @@ The configuration file specifies Prometheus as a datasource for Grafana. Please 
 
 Use the following command to start a Grafana Docker container and to mount the configuration file of the datasources (datasources.yml). We also pass some environment variables to disable the login form and to allow anonymous access to Grafana:
 
-```
+```java
 docker run --rm -p 3000:3000 \
   -e GF_AUTH_DISABLE_LOGIN_FORM=true \
   -e GF_AUTH_ANONYMOUS_ENABLED=true \
@@ -433,12 +433,19 @@ git clone https://github.com/coder-society/nodejs-application-monitoring-with-pr
 
 The JavaScript code of the Node.js app is located in the /example-nodejs-app directory. All containers can be started conveniently with docker-compose. Run the following command in the project root directory:
 
+```java
+
 ```
+
 # detached mode
+
 docker-compose up -d
+
 # view the logs as they happen
+
 docker-compose up
-```
+
+````
 
 After executing the command, a Node.js app, Grafana, and Prometheus will be running in the background. The charts of the gathered metrics can be accessed and viewed via the Grafana UI at http://localhost:3000/d/1DYaynomMk/example-service-dashboard.
 
@@ -448,9 +455,9 @@ To generate traffic for the Node.js app, we will use the ApacheBench command lin
 
 On MacOS, it comes pre-installed by default. On Debian-based Linux distributions, ApacheBench can be installed with the following command:
 
-```
+```java
 sudo apt-get install apache2-utils
-```
+````
 
 For Windows, you can download the binaries from Apache Lounge as a ZIP archive. ApacheBench will be named ab.exe in that archive.
 
@@ -458,13 +465,13 @@ This CLI command will run ApacheBench so that it sends 10,000 requests to the /o
 
 https://codersociety.com/blog/articles/nodejs-application-monitoring-with-prometheus-and-grafana
 
-```
+```java
 ab -m POST -n 10000 -c 100 http://localhost:8080/order
 ```
 
 Output:
 
-```
+```java
 This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
 Licensed to The Apache Software Foundation, http://www.apache.org/
