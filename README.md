@@ -16,7 +16,7 @@ https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus
 
 From / By https://github.com/coder-society/nodejs-application-monitoring-with-prometheus-and-grafana
 
-![](https://cdn.codersociety.com/uploads/keystone/nodejs-performance-monitoring-with-prometheus-and-grafana.png)
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/nodejs-performance-monitoring-with-prometheus-and-grafana.png?raw=true)
 
 We discuss this repository in this article in detail:
 https://codersociety.com/blog/articles/nodejs-application-monitoring-with-prometheus-and-grafana
@@ -122,7 +122,7 @@ By Kentaro Wakayama https://codersociety.com/blog/articles/nodejs-application-mo
 
 15 September 2020 - 4 min read
 
-![](https://cdn.codersociety.com/uploads/keystone/nodejs-performance-monitoring-with-prometheus-and-grafana.png)
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/nodejs-performance-monitoring-with-prometheus-and-grafana.png?raw=true)
 
 We discuss this repository in this article in detail:
 https://codersociety.com/blog/articles/nodejs-application-monitoring-with-prometheus-and-grafana
@@ -168,6 +168,259 @@ Open in your web browser the monitoring dashboards:
 
 - Monitoring dashboard for the Node.js app can be found on[http://localhost:3000/d/1DYaynomMk/example-service-dashboard](http://localhost:3000/d/1DYaynomMk/example-service-dashboard)
 
+## What is Prometheus and how does it work?
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/Performance-Monitoring-Table.png?raw=true)
+
+Prometheus is an open-source monitoring system which was created in 2012 by Soundcloud. In 2016, Prometheus became the second project (following Kubernetes) to be hosted by the Cloud Native Computing Foundation.
+
+## Performance Monitoring architecture diagram with Prometheus and Grafana
+
+The Prometheus server collects metrics from your servers and other monitoring targets by pulling their metric endpoints over HTTP at a predefined time interval. For ephemeral and batch jobs, for which metrics can't be scraped periodically due to their short-lived nature, Prometheus offers a Pushgateway. This is an intermediate server that monitoring targets can push their metrics to before exiting. The data is retained there until the Prometheus server pulls it later.
+
+The core data structure of Prometheus is the time series, which is essentially a list of timestamped values that are grouped by metric.
+
+With PromQL (Prometheus Query Language), Prometheus provides a functional query language allowing for selection and aggregation of time series data in real time. The result of a query can be viewed directly in the Prometheus web UI, or consumed by external systems such as Grafana via the HTTP API.
+
+## How to use prom-client to export metrics in Node.js for Prometheus?
+
+prom-client is the most popular Prometheus client libary for Node.js. It provides the building blocks to export metrics to Prometheus via the pull and push methods and supports all Prometheus metric types such as histogram, summaries, gauges and counters.
+
+## Setup sample Node.js project
+
+Create a new directory and setup the Node.js project:
+
+```
+mkdir example-nodejs-app
+cd example-nodejs-app
+npm init -y
+```
+
+## Install prom-client
+
+The prom-client npm module can be installed via:
+
+```
+npm install prom-client
+```
+
+## Exposing default metrics
+
+Every Prometheus client library comes with predefined default metrics that are assumed to be good for all applications on the specific runtime. The prom-client library also follows this convention. The default metrics are useful for monitoring the usage of resources such as memory and CPU.
+
+You can capture and expose the default metrics with following code snippet:
+
+```
+const http = require('http')
+const url = require('url')
+const client = require('prom-client')
+
+// Create a Registry which registers the metrics
+const register = new client.Registry()
+
+// Add a default label which is added to all metrics
+register.setDefaultLabels({
+  app: 'example-nodejs-app'
+})
+
+// Enable the collection of default metrics
+client.collectDefaultMetrics({ register })
+
+// Define the HTTP server
+const server = http.createServer(async (req, res) => {
+  // Retrieve route from request object
+  const route = url.parse(req.url).pathname
+
+  if (route === '/metrics') {
+    // Return all metrics the Prometheus exposition format
+    res.setHeader('Content-Type', register.contentType)
+    res.end(register.metrics())
+  }
+})
+
+// Start the HTTP server which exposes the metrics on http://localhost:8080/metrics
+server.listen(8080)
+Collapse code
+Exposing custom metrics
+While default metrics are a good starting point, at some point, you’ll need to define custom metrics in order to stay on top of things.
+
+Capturing and exposing a custom metric for HTTP request durations might look like this:
+
+const http = require('http')
+const url = require('url')
+const client = require('prom-client')
+
+// Create a Registry which registers the metrics
+const register = new client.Registry()
+
+// Add a default label which is added to all metrics
+register.setDefaultLabels({
+  app: 'example-nodejs-app'
+})
+
+// Enable the collection of default metrics
+client.collectDefaultMetrics({ register })
+
+// Create a histogram metric
+const httpRequestDurationMicroseconds = new client.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in microseconds',
+  labelNames: ['method', 'route', 'code'],
+  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+})
+
+// Register the histogram
+register.registerMetric(httpRequestDurationMicroseconds)
+
+// Define the HTTP server
+const server = http.createServer(async (req, res) => {
+    // Start the timer
+  const end = httpRequestDurationMicroseconds.startTimer()
+
+  // Retrieve route from request object
+  const route = url.parse(req.url).pathname
+
+  if (route === '/metrics') {
+    // Return all metrics the Prometheus exposition format
+    res.setHeader('Content-Type', register.contentType)
+    res.end(register.metrics())
+  }
+
+  // End timer and add labels
+  end({ route, code: res.statusCode, method: req.method })
+})
+
+// Start the HTTP server which exposes the metrics on http://localhost:8080/metrics
+server.listen(8080)
+```
+
+Copy the above code into a file called server.js and start the Node.js HTTP server with following command:
+
+```
+node server.js
+```
+
+You should now be able to access the metrics via http://localhost:8080/metrics.
+
+How to scrape metrics from Prometheus
+Prometheus is available as Docker image and can be configured via a YAML file.
+
+Create a configuration file called prometheus.yml with following content:
+
+```
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: "example-nodejs-app"
+    static_configs:
+      - targets: ["docker.for.mac.host.internal:8080"]
+```
+
+The config file tells Prometheus to scrape all targets every 5 seconds. The targets are defined under scrape_configs. On Mac, you need to use docker.for.mac.host.internal as host, so that the Prometheus Docker container can scrape the metrics of the local Node.js HTTP server. On Windows, use docker.for.win.localhost and for Linux use localhost.
+
+Use the docker run command to start the Prometheus Docker container and mount the configuration file (prometheus.yml):
+
+```
+docker run --rm -p 9090:9090 \
+  -v `pwd`/prometheus.yml:/etc/prometheus/prometheus.yml \
+  prom/prometheus:v2.20.1
+```
+
+Windows users need to replace pwd with the path to their current working directory.
+
+You should now be able to access the Prometheus Web UI on http://localhost:9090
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/prometheus-web-ui.png?raw=true)
+
+Prometheus Web UI screenshot
+
+## What is Grafana and how does it work?
+
+Grafana is a web application that allows you to visualize data sources. A visualization can be a graph or chart. It comes with a variety of chart types, allowing you to choose whatever fits your monitoring data needs. Multiple charts are grouped into dashboards in Grafana, so that multiple metrics can be viewed at once.
+
+The metrics displayed in the Grafana charts come from data sources. Prometheus is one of the supported data sources for Grafana, but it can also use other systems, like AWS CloudWatch, or Azure Monitor.
+
+Grafana also allows you to define alerts that will be triggered if certain issues arise, meaning you’ll receive an email notification if something goes wrong. For a more advanced alerting setup checkout the Grafana integration for Opsgenie.
+
+Grafana Play Web UI screenshot showing Home
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/Grafana.png?raw=true)
+
+## Starting Grafana
+
+Grafana is also available as Docker container. Grafana datasources can be configured via a configuration file.
+
+## Create a configuration file called datasources.yml with following content:
+
+```
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://docker.for.mac.host.internal:9090
+    basicAuth: false
+    isDefault: true
+    editable: true
+```
+
+The configuration file specifies Prometheus as a datasource for Grafana. Please note that on Mac, we need to use docker.for.mac.host.internal as host, so that Grafana can access Prometheus. On Windows, use docker.for.win.localhost and for Linux use localhost.
+
+Use the following command to start a Grafana Docker container and to mount the configuration file of the datasources (datasources.yml). We also pass some environment variables to disable the login form and to allow anonymous access to Grafana:
+
+```
+docker run --rm -p 3000:3000 \
+  -e GF_AUTH_DISABLE_LOGIN_FORM=true \
+  -e GF_AUTH_ANONYMOUS_ENABLED=true \
+  -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin \
+  -v `pwd`/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml \
+  grafana/grafana:7.1.5
+```
+
+Windows users need to replace pwd with the path to their current working directory.
+
+You should now be able to access the Grafana Web UI on http://localhost:3000
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-web-ui.png?raw=true)
+
+Grafana Web UI screenshot showing Home
+
+## Configuring a Grafana Dashboard
+
+Once the metrics are available in Prometheus, we want to view them in Grafana. This requires creating a dashboard and adding panels to that dashboard:
+
+- Go to the Grafana UI at http://localhost:3000, click the + button on the left, and select Dashboard.
+- In the new dashboard, click on the Add new panel button.
+- In the Edit panel view, you can select a metric and configure a chart for it.
+- The Metrics drop-down on the bottom left allows you to choose from the available metrics. Let’s use one of the default metrics for this example.
+- Type process_resident_memory_bytes into the Metrics input and {{app}} into the Legend input.
+- On the right panel, enter Memory Usage for the Panel title.
+- As the unit of the metric is in bytes we need to select bytes(Metric) for the left y axis in the Axes section, so that the chart is easy to read for humans.
+- You should now see a chart showing the memory usage of the Node.js HTTP server.
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-dashboard.png?raw=true)
+
+Grafana Web UI showing editing of panel Metrics
+
+Press Apply to save the panel. Back on the dashboard, click the small "save" symbol at the top right, a pop-up will appear allowing you to save your newly created dashboard for later use.
+
+## Setting up alerts in Grafana
+
+Since nobody wants to sit in front of Grafana all day watching and waiting to see if things go wrong, Grafana allows you to define alerts. These alerts regularly check whether a metric adheres to a specific rule, for example, whether the errors per second have exceeded a specific value.
+
+Alerts can be set up for every panel in your dashboards.
+
+Go into the Grafana dasboard we just created.
+
+- Click on a panel title and select edit.
+- Once in the edit view, select "Alerts" from the middle tabs, and press the Create Alert button.
+- In the Conditions section specify 42000000 after IS ABOVE. This tells Grafana to trigger an alert when - the Node.js HTTP server consumes more than 42 MB Memory.
+- Save the alert by pressing the Apply button in the top right.
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-alerting-setup.png?raw=true)
+
 ## Sample code repository
 
 We created a code repository which contains a collection of Docker containers with Prometheus, Grafana, and a Node.js sample application. It also contains a Grafana dashboard, which follows the RED monitoring methodology.
@@ -188,6 +441,8 @@ docker-compose up
 ```
 
 After executing the command, a Node.js app, Grafana, and Prometheus will be running in the background. The charts of the gathered metrics can be accessed and viewed via the Grafana UI at http://localhost:3000/d/1DYaynomMk/example-service-dashboard.
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-example-service-dashboard.png?raw=true)
 
 To generate traffic for the Node.js app, we will use the ApacheBench command line tool, which allows sending requests from the command line.
 
@@ -266,3 +521,36 @@ Percentage of the requests served within a certain time (ms)
   99%   5006
  100%   5086 (longest request)
 ```
+
+Depending on your hardware, running this command may take some time.
+
+After running the ab command, you can access the Grafana dashboard via http://localhost:3000/d/1DYaynomMk/example-service-dashboard.
+
+![Figure 1: Requests per minute graph](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-rate.png?raw=true)
+Figure 1: Requests per minute graph
+
+Figure 1 shows that the Node.js app was handling ~1,500 requests per minute.
+
+![Figure 2: Request errors per minute graph](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-errors.png?raw=true)
+Figure 2: Request errors per minute graph
+
+Figure 2 shows that there are a maximum of 20 errors per minute.
+
+![](https://github.com/coding-to-music/nodejs-application-monitoring-with-prometheus-and-grafana/blob/main/images/grafana-request-duration.png?raw=true)
+Figure 3: Request duration graph
+
+Figure 3 shows the time it took to process a request. Displayed here are the 90th percentile, the median, and the average durations for different endpoints of the Node.js app. The 90th percentile is the slowest 10% of requests. For the 10,000 requests we sent with ApacheBench, this means the 1,000 requests that took the longest time. In this case, it shows that 1,000 requests to the /order endpoint took over 6 seconds.
+
+## Summary
+
+Prometheus is a powerful open-source tool for self-hosted monitoring. It’s a good option for cases in which you don’t want to build from scratch but also don’t want to invest in a SaaS solution.
+
+With a community-supported client library for Node.js and numerous client libraries for other languages, the monitoring of all your systems can be bundled into one place.
+
+Its integration is straightforward, involving just a few lines of code. It can be done directly for long-running services or with help of a push server for short-lived jobs and FaaS-based implementations.
+
+Grafana is also an open-source tool that integrates well with Prometheus. Among the many benefits it offers are flexible configuration, dashboards that allow you to visualize any relevant metric, and alerts to notify of any anomalous behavior.
+
+These two tools combined offer a straightforward way to get insights into your systems. Prometheus offers huge flexibility in terms of metrics gathered and Grafana offers many different graphs to display these metrics. Prometheus and Grafana also integrate so well with each other that it’s surprising they’re not part of one product.
+
+You should now have a good understanding of Prometheus and Grafana and how to make use of them to monitor your Node.js projects in order to gain more insights and confidence of your software deployments.
