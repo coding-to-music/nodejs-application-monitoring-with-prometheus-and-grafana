@@ -13,6 +13,10 @@ https://codersociety.com/blog/articles/nodejs-application-monitoring-with-promet
 
 The repository contains a sample Node.js app which integrates the [Prometheus client for node.js](https://github.com/siimon/prom-client) and exposes metrics on [http://localhost:8080/metrics](http://localhost:8080/metrics). The metrics are periodically scraped by [Prometheus](https://prometheus.io) and visualized through a [Grafana](https://grafana.com/oss/grafana) monitoring dashboard.
 
+## Prometheus port has been changed to 9095 to avoid conflicts with existing use of the port
+
+Prometheus port has been changed to 9095 to avoid conflicts with existing use of the port
+
 ## Environment variables:
 
 ```java

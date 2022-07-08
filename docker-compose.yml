@@ -1,10 +1,10 @@
-version: '2.1'
+version: "2.1"
 networks:
   monitoring:
     driver: bridge
 volumes:
-    prometheus_data: {}
-    grafana_data: {}
+  prometheus_data: {}
+  grafana_data: {}
 services:
   prometheus:
     image: prom/prometheus:v2.20.1
@@ -13,9 +13,9 @@ services:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     ports:
-      - 9090:9090
+      - 9095:9095
     expose:
-      - 9090
+      - 9095
     networks:
       - monitoring
   grafana:
